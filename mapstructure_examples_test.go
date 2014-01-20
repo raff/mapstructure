@@ -218,3 +218,22 @@ func ExampleDecodePath() {
 	// Output:
 	// mapstructure.User{Session:"06142010_1:b8d011fefbab8bf1753391b074ffedf9578612d676ed2b7f073b5785b", CobrandId:10000004, UserType:mapstructure.UserType{UserTypeId:1, UserTypeName:"normal_user"}, LoginName:"sptest1", NumberFormat:mapstructure.NumberFormat{DecimalSeparator:".", GroupingSeparator:",", GroupPattern:"###,##0.##"}}
 }
+
+func ExampleDecodeSlicePath() {
+	var document = `[{"name":"bill"},{"name":"lisa"}]`
+
+	type NameDoc struct {
+		Name string `jpath:"name"`
+	}
+
+	sliceScript := []byte(document)
+	sliceMap := []map[string]interface{}{}
+	json.Unmarshal(sliceScript, &sliceMap)
+
+	var myslice []NameDoc
+	DecodeSlicePath(sliceMap, &myslice)
+
+	fmt.Printf("%#v", myslice)
+	// Output:
+	// []mapstructure.NameDoc{mapstructure.NameDoc{Name:"bill"}, mapstructure.NameDoc{Name:"lisa"}}
+}

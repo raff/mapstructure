@@ -51,26 +51,49 @@ Sometimes you have a large and complex JSON document where you only need to deco
 a small part.
 
 ```
-"userContext": {
-    "conversationCredentials": {
-        "sessionToken": "06142010_1:75bf6a413327dd71ebe8f3f30c5a4210a9b11e93c028d6e11abfca7ff"
-    },
-	"valid": true,
-    "isPasswordExpired": false,
-    "cobrandId": 10000004,
-    "channelId": -1,
-    "locale": "en_US",
-    "tncVersion": 2,
-    "cobrandConversationCredentials": {
-        "sessionToken": "06142010_1:b8d011fefbab8bf1753391b074ffedf9578612d676ed2b7f073b5785b"
-    },
-	"loginName": "sptest1",
-	"userType": {
-        "userTypeId": 1,
-        "userTypeName": "normal_user"
-    }
+{
+	"userContext": {
+		"conversationCredentials": {
+	            "sessionToken": "06142010_1:75bf6a413327dd71ebe8f3f30c5a4210a9b11e93c028d6e11abfca7ff"
+	    },
+	    "valid": true,
+	    "isPasswordExpired": false,
+	    "cobrandId": 10000004,
+	    "channelId": -1,
+	    "locale": "en_US",
+	    "tncVersion": 2,
+	    "applicationId": "17CBE222A42161A3FF450E47CF4C1A00",
+	    "cobrandConversationCredentials": {
+	        "sessionToken": "06142010_1:b8d011fefbab8bf1753391b074ffedf9578612d676ed2b7f073b5785b"
+	    },
+	     "preferenceInfo": {
+	         "currencyCode": "USD",
+	         "timeZone": "PST",
+	         "dateFormat": "MM/dd/yyyy",
+	         "currencyNotationType": {
+	             "currencyNotationType": "SYMBOL"
+	         },
+	         "numberFormat": {
+	             "decimalSeparator": ".",
+	             "groupingSeparator": ",",
+	             "groupPattern": "###,##0.##"
+	         }
+	     }
+	 },
+	 "lastLoginTime": 1375686841,
+	 "loginCount": 299,
+	 "passwordRecovered": false,
+	 "emailAddress": "johndoe@yodlee.com",
+	 "loginName": "sptest1",
+	 "userId": 10483860,
+	 "userType":
+	     {
+	     "userTypeId": 1,
+	     "userTypeName": "normal_user"
+	     }
 }
 ```
+
 It is nice to be able to define and pull the documents and fields you need without
 having to map the entire JSON structure.
 
@@ -79,15 +102,46 @@ type UserType struct {
 	UserTypeId   int
 	UserTypeName string
 }
+
+type NumberFormat struct {
+		DecimalSeparator  string `jpath:"userContext.preferenceInfo.numberFormat.decimalSeparator"`
+		GroupingSeparator string `jpath:"userContext.preferenceInfo.numberFormat.groupingSeparator"`
+		GroupPattern      string `jpath:"userContext.preferenceInfo.numberFormat.groupPattern"`
+	}
 	
 type User struct {
-		Session   string   `xpath:"userContext.cobrandConversationCredentials.sessionToken"`
-		CobrandId int      `xpath:"userContext.cobrandId"`
-		UserType  UserType `xpath:"userType"`
-		LoginName string   `xpath:"loginName"`
+		Session   string   `jpath:"userContext.cobrandConversationCredentials.sessionToken"`
+		CobrandId int      `jpath:"userContext.cobrandId"`
+		UserType  UserType `jpath:"userType"`
+		LoginName string   `jpath:"loginName"`
+		NumberFormat       // This can also be a pointer to the struct (*NumberFormat)
 }
 
 user := User{}
 mapstructure.DecodePath(docMap, &user)
 ```
-The DecodePath function give you this functionality.
+
+## DecodeSlicePath
+
+Sometimes you have a slice of documents that you need to decode into a slice of structures
+
+```
+[
+	{"name":"bill"},
+	{"name":"lisa"}
+]
+```
+
+Just Unmarshal your document into a slice of maps and decode the slice
+
+```
+type NameDoc struct {
+	Name string `jpath:"name"`
+}
+
+var myslice []NameDoc
+err := DecodeSlicePath(sliceMap, &myslice)
+
+var myslice []*NameDoc
+err := DecodeSlicePath(sliceMap, &myslice)
+```

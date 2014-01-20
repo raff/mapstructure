@@ -884,3 +884,48 @@ func TestDecodePath(t *testing.T) {
 		t.Errorf("user.NumberFormat.GroupPattern should be '%s', we got '%s'", groupPattern, user.NumberFormat.GroupPattern)
 	}
 }
+
+func TestDecodeSlicePath(t *testing.T) {
+	var document = `[{"name":"bill"},{"name":"lisa"}]`
+
+	type NameDoc struct {
+		Name string `jpath:"name"`
+	}
+
+	sliceScript := []byte(document)
+	sliceMap := []map[string]interface{}{}
+	json.Unmarshal(sliceScript, &sliceMap)
+
+	var myslice1 []NameDoc
+	err1 := DecodeSlicePath(sliceMap, &myslice1)
+
+	var myslice2 []*NameDoc
+	err2 := DecodeSlicePath(sliceMap, &myslice2)
+
+	name1 := "bill"
+	name2 := "lisa"
+
+	if err1 != nil {
+		t.Fatal(err1)
+	}
+
+	if err2 != nil {
+		t.Fatal(err1)
+	}
+
+	if myslice1[0].Name != name1 {
+		t.Errorf("myslice1[0].Name should be '%s', we got '%s'", name1, myslice1[0].Name)
+	}
+
+	if myslice1[1].Name != name2 {
+		t.Errorf("myslice1[1].Name should be '%s', we got '%s'", name1, myslice1[1].Name)
+	}
+
+	if myslice2[0].Name != name1 {
+		t.Errorf("myslice2[0].Name should be '%s', we got '%s'", name1, myslice1[0].Name)
+	}
+
+	if myslice2[1].Name != name2 {
+		t.Errorf("myslice1[1].Name should be '%s', we got '%s'", name2, myslice2[1].Name)
+	}
+}
