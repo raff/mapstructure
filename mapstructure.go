@@ -233,8 +233,9 @@ func (d *Decoder) Decode(raw interface{}) error {
 // DecodePath decodes the raw interface against the map based on the
 // specified tags
 func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool, error) {
+	decoded := false
+
 	var val reflect.Value
-	found := false
 	reflectRawValue := reflect.ValueOf(rawVal)
 	kind := reflectRawValue.Kind()
 
@@ -243,12 +244,12 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 	case reflect.Ptr:
 		val = reflectRawValue.Elem()
 		if val.Kind() != reflect.Struct {
-			return false, fmt.Errorf("Incompatible Type : %v", kind)
+			return decoded, fmt.Errorf("Incompatible Type : %v", kind)
 		}
 	case reflect.Struct:
 		val = rawVal.(reflect.Value)
 	default:
-		return false, fmt.Errorf("Incompatible Type : %v", kind)
+		return decoded, fmt.Errorf("Incompatible Type : %v", kind)
 	}
 
 	// Iterate over the fields in the struct
@@ -269,7 +270,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 				if valueField.IsNil() {
 					// Create the object since it doesn't exist
 					valueField.Set(reflect.New(valueField.Type().Elem()))
-					if found, _ := d.DecodePath(m, valueField.Elem()); found == false {
+					if decoded, _ := d.DecodePath(m, valueField.Elem()); decoded == false {
 						// If nothing was decoded for this object return the pointer to nil
 						valueField.Set(reflect.NewAt(valueField.Type().Elem(), nil))
 					}
@@ -285,7 +286,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		keys := strings.Split(tagValue, ".")
 		data := d.findData(m, keys)
 		if data != nil {
-			found = true
+			decoded = true
 			err := d.decode("", data, valueField)
 			if err != nil {
 				return false, err
@@ -293,7 +294,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		}
 	}
 
-	return found, nil
+	return decoded, nil
 }
 
 // Decodes an unknown data type into a specific reflection value.
