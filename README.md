@@ -117,6 +117,10 @@ type User struct {
 		NumberFormat       // This can also be a pointer to the struct (*NumberFormat)
 }
 
+docScript := []byte(document)
+docMap := map[string]interface{}{}
+json.Unmarshal(docScript, &docMap)
+
 user := User{}
 mapstructure.DecodePath(docMap, &user)
 ```
@@ -138,6 +142,10 @@ Just Unmarshal your document into a slice of maps and decode the slice
 type NameDoc struct {
 	Name string `jpath:"name"`
 }
+
+sliceScript := []byte(document)
+sliceMap := []map[string]interface{}{}
+json.Unmarshal(sliceScript, &sliceMap)
 
 var myslice []NameDoc
 err := DecodeSlicePath(sliceMap, &myslice)
