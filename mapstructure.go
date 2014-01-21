@@ -112,7 +112,8 @@ func DecodePath(m map[string]interface{}, rawVal interface{}) error {
 		return err
 	}
 
-	return decoder.DecodePath(m, rawVal)
+	_, err = decoder.DecodePath(m, rawVal)
+	return err
 }
 
 // DecodeSlicePath decodes a slice of maps against a slice of structures that
@@ -231,8 +232,9 @@ func (d *Decoder) Decode(raw interface{}) error {
 
 // DecodePath decodes the raw interface against the map based on the
 // specified tags
-func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) error {
+func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool, error) {
 	var val reflect.Value
+	found := false
 	reflectRawValue := reflect.ValueOf(rawVal)
 	kind := reflectRawValue.Kind()
 
@@ -241,12 +243,12 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) error
 	case reflect.Ptr:
 		val = reflectRawValue.Elem()
 		if val.Kind() != reflect.Struct {
-			return fmt.Errorf("Incompatible Type : %v", kind)
+			return false, fmt.Errorf("Incompatible Type : %v", kind)
 		}
 	case reflect.Struct:
 		val = rawVal.(reflect.Value)
 	default:
-		return fmt.Errorf("Incompatible Type : %v", kind)
+		return false, fmt.Errorf("Incompatible Type : %v", kind)
 	}
 
 	// Iterate over the fields in the struct
@@ -261,13 +263,21 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) error
 			if valueField.Kind() == reflect.Struct {
 				// We have a struct that may have indivdual tags. Process separately
 				d.DecodePath(m, valueField)
+				continue
 			} else if valueField.Kind() == reflect.Ptr && reflect.TypeOf(valueField).Kind() == reflect.Struct {
 				// We have a pointer to a struct
 				if valueField.IsNil() {
 					// Create the object since it doesn't exist
 					valueField.Set(reflect.New(valueField.Type().Elem()))
+					if found, _ := d.DecodePath(m, valueField.Elem()); found == false {
+						// If nothing was decoded for this object return the pointer to nil
+						valueField.Set(reflect.NewAt(valueField.Type().Elem(), nil))
+					}
+					continue
 				}
+
 				d.DecodePath(m, valueField.Elem())
+				continue
 			}
 		}
 
@@ -275,14 +285,15 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) error
 		keys := strings.Split(tagValue, ".")
 		data := d.findData(m, keys)
 		if data != nil {
+			found = true
 			err := d.decode("", data, valueField)
 			if err != nil {
-				return err
+				return false, err
 			}
 		}
 	}
 
-	return nil
+	return found, nil
 }
 
 // Decodes an unknown data type into a specific reflection value.
