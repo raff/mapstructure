@@ -178,7 +178,7 @@ func ExampleDecodePath() {
     "lastLoginTime": 1375686841,
     "loginCount": 299,
     "passwordRecovered": false,
-    "emailAddress": "johndoe@yodlee.com",
+    "emailAddress": "johndoe@email.com",
     "loginName": "sptest1",
     "userId": 10483860,
     "userType":
