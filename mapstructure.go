@@ -247,7 +247,6 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 			return decoded, fmt.Errorf("Incompatible Type : %v : Looking For Struct", kind)
 		}
 	case reflect.Struct:
-		fmt.Printf("%v\n", reflectRawValue)
 		var ok bool
 		val, ok = rawVal.(reflect.Value)
 		if ok == false {
