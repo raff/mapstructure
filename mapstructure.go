@@ -250,7 +250,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		var ok bool
 		val, ok = rawVal.(reflect.Value)
 		if ok == false {
-			val = reflectRawValue
+			return decoded, fmt.Errorf("Incompatible Type : %v : Looking For reflect.Value", kind)
 		}
 	default:
 		return decoded, fmt.Errorf("Incompatible Type : %v", kind)
