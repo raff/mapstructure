@@ -244,10 +244,15 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 	case reflect.Ptr:
 		val = reflectRawValue.Elem()
 		if val.Kind() != reflect.Struct {
-			return decoded, fmt.Errorf("Incompatible Type : %v", kind)
+			return decoded, fmt.Errorf("Incompatible Type : %v : Looking For Struct", kind)
 		}
 	case reflect.Struct:
-		val = rawVal.(reflect.Value)
+		fmt.Printf("%v\n", reflectRawValue)
+		var ok bool
+		val, ok = rawVal.(reflect.Value)
+		if ok == false {
+			val = reflectRawValue
+		}
 	default:
 		return decoded, fmt.Errorf("Incompatible Type : %v", kind)
 	}
