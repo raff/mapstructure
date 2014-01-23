@@ -251,8 +251,6 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		if ok == false {
 			return decoded, fmt.Errorf("Incompatible Type : %v : Looking For reflect.Value", kind)
 		}
-	case reflect.Slice:
-		fmt.Printf("NEW CALL WITH SLICE\n")
 	default:
 		return decoded, fmt.Errorf("Incompatible Type : %v", kind)
 	}
