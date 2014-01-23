@@ -161,7 +161,6 @@ func DecodeSlicePath(ms []map[string]interface{}, rawSlice interface{}) error {
 
 	// Set the new slice
 	reflect.ValueOf(rawSlice).Elem().Set(valSlice)
-
 	return nil
 }
 
@@ -252,6 +251,8 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		if ok == false {
 			return decoded, fmt.Errorf("Incompatible Type : %v : Looking For reflect.Value", kind)
 		}
+	case reflect.Slice:
+		fmt.Printf("NEW CALL WITH SLICE\n")
 	default:
 		return decoded, fmt.Errorf("Incompatible Type : %v", kind)
 	}
@@ -290,6 +291,15 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		keys := strings.Split(tagValue, ".")
 		data := d.findData(m, keys)
 		if data != nil {
+			if valueField.Kind() == reflect.Slice {
+				ms := []map[string]interface{}{}
+				for _, m2 := range data.([]interface{}) {
+					ms = append(ms, m2.(map[string]interface{}))
+				}
+				DecodeSlicePath(ms, valueField.Addr().Interface())
+				continue
+			}
+
 			decoded = true
 			err := d.decode("", data, valueField)
 			if err != nil {
