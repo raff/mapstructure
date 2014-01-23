@@ -192,3 +192,28 @@ Sometimes you have a document with arrays
 	]
 }
 ```
+
+You can decode within those arrays
+
+```
+type Animal struct {
+	Barks string `jpath:"barks"`
+}
+
+type People struct {
+	Age     int      `jpath:"age.birth"` // jpath is relative to the array
+	Animals []Animal `jpath:"age.animals"`
+}
+
+type Items struct {
+	Categories []string `jpath:"categories"`
+	Peoples    []People `jpath:"people"` // Specify the location of the array
+}
+
+docScript := []byte(document)
+docMap := map[string]interface{}{}
+json.Unmarshal(docScript, &docMap)
+
+items := Items{}
+DecodePath(docMap, &items)
+```

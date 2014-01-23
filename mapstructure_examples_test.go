@@ -278,13 +278,13 @@ func ExampleDecodeWithEmbeddedSlice() {
 	}
 
 	type People struct {
-		Age     int      `jpath:"age.birth"`
+		Age     int      `jpath:"age.birth"` // jpath is relative to the array
 		Animals []Animal `jpath:"age.animals"`
 	}
 
 	type Items struct {
 		Categories []string `jpath:"categories"`
-		Peoples    []People `jpath:"people"`
+		Peoples    []People `jpath:"people"` // Specify the location of the array
 	}
 
 	docScript := []byte(document)
