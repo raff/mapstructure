@@ -153,3 +153,42 @@ err := DecodeSlicePath(sliceMap, &myslice)
 var myslice []*NameDoc
 err := DecodeSlicePath(sliceMap, &myslice)
 ```
+
+## Decode Structs With Embedded Slices
+
+Sometimes you have a document with arrays
+
+```
+{
+	"cobrandId": 10010352,
+	"channelId": -1,
+	"locale": "en_US",
+	"tncVersion": 2,
+	"people": [
+		{
+			"name": "jack",
+			"age": {
+			"birth":10,
+			"year":2000,
+			"animals": [
+				{
+				"barks":"yes",
+				"tail":"yes"
+				},
+				{
+				"barks":"no",
+				"tail":"yes"
+				}
+			]
+		}
+		},
+		{
+			"name": "jill",
+			"age": {
+				"birth":11,
+				"year":2001
+			}
+		}
+	]
+}
+```

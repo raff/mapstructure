@@ -291,7 +291,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		if data != nil {
 			if valueField.Kind() == reflect.Slice {
 				// Ignore a slice of maps
-				if strings.Contains(valueField.Type().String(), "map") {
+				if strings.Contains(valueField.Type().String(), "map[") {
 					goto normal_decode
 				}
 

@@ -929,3 +929,109 @@ func TestDecodeSlicePath(t *testing.T) {
 		t.Errorf("myslice1[1].Name should be '%s', we got '%s'", name2, myslice2[1].Name)
 	}
 }
+
+func TestDecodeWithEmbeddedSlice(t *testing.T) {
+	var document string = `{
+		"cobrandId": 10010352,
+		"channelId": -1,
+		"locale": "en_US",
+		"tncVersion": 2,
+		"categories":["rabbit","bunny","frog"],
+		"people": [
+			{
+				"name": "jack",
+				"age": {
+				"birth":10,
+				"year":2000,
+				"animals": [
+					{
+					"barks":"yes",
+					"tail":"yes"
+					},
+					{
+					"barks":"no",
+					"tail":"yes"
+					}
+				]
+			}
+			},
+			{
+				"name": "jill",
+				"age": {
+					"birth":11,
+					"year":2001
+				}
+			}
+		]
+}`
+
+	type Animal struct {
+		Barks string `jpath:"barks"`
+	}
+
+	type People struct {
+		Age     int      `jpath:"age.birth"`
+		Animals []Animal `jpath:"age.animals"`
+	}
+
+	type Items struct {
+		Categories []string `jpath:"categories"`
+		Peoples    []People `jpath:"people"`
+	}
+
+	docScript := []byte(document)
+	docMap := map[string]interface{}{}
+	json.Unmarshal(docScript, &docMap)
+
+	items := Items{}
+	DecodePath(docMap, &items)
+
+	if len(items.Categories) != 3 {
+		t.Error("items.Categories did not decode")
+		return
+	}
+
+	if len(items.Peoples) != 2 {
+		t.Error("items.Peoples did not decode")
+		return
+	}
+
+	if len(items.Peoples[0].Animals) != 2 {
+		t.Error("items.Peoples[0].Animals did not decode")
+		return
+	}
+
+	age := 10
+	if items.Peoples[0].Age != 10 {
+		t.Errorf("items.Peoples[0].Age should be '%d', we got '%s'", age, items.Peoples[0].Age)
+	}
+
+	barks := "yes"
+	if items.Peoples[0].Animals[0].Barks != barks {
+		t.Errorf("items.Peoples[0].Animals[0].Barks should be '%d', we got '%s'", barks, items.Peoples[0].Animals[0].Barks)
+	}
+}
+
+func TestDecodeWithAbstractField(t *testing.T) {
+	var document = `{"Error":[{"errorDetail":"Invalid Cobrand Credentials"}]}`
+
+	type YodleeError struct {
+		Error []map[string]interface{} `jpath:"Error"`
+	}
+
+	type CobrandContext struct {
+		*YodleeError
+	}
+
+	docScript := []byte(document)
+	docMap := map[string]interface{}{}
+	json.Unmarshal(docScript, &docMap)
+
+	cobrandContext := CobrandContext{}
+	DecodePath(docMap, &cobrandContext)
+
+	errorDetail := "Invalid Cobrand Credentials"
+	if cobrandContext.Error[0]["errorDetail"].(string) != errorDetail {
+		t.Errorf("cobrandContext.Error[0][\"errorDetail\"] should be '%s', we got '%s'", errorDetail, cobrandContext.Error[0]["errorDetail"].(string))
+	}
+}
