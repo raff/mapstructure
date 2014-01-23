@@ -290,7 +290,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		data := d.findData(m, keys)
 		if data != nil {
 			if valueField.Kind() == reflect.Slice {
-				// Ignore a slice of maps
+				// Ignore a slice of maps - This sucks but not sure how to check
 				if strings.Contains(valueField.Type().String(), "map[") {
 					goto normal_decode
 				}
