@@ -290,13 +290,18 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		data := d.findData(m, keys)
 		if data != nil {
 			if valueField.Kind() == reflect.Slice {
+				// Ignore a slice of maps
+				if strings.Contains(valueField.Type().String(), "map") {
+					goto normal_decode
+				}
+
 				// We have a slice
 				mapSlice := data.([]interface{})
 				if len(mapSlice) > 0 {
 					// Test if this is a slice of more maps
 					_, ok := mapSlice[0].(map[string]interface{})
 					if ok == false {
-						goto label
+						goto normal_decode
 					}
 
 					// Extract the maps out and run it through DecodeSlicePath
@@ -304,11 +309,12 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 					for index, m2 := range mapSlice {
 						ms[index] = m2.(map[string]interface{})
 					}
+
 					DecodeSlicePath(ms, valueField.Addr().Interface())
 					continue
 				}
 			}
-		label:
+		normal_decode:
 			decoded = true
 			err := d.decode("", data, valueField)
 			if err != nil {
