@@ -273,7 +273,8 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 				if valueField.IsNil() {
 					// Create the object since it doesn't exist
 					valueField.Set(reflect.New(valueField.Type().Elem()))
-					if decoded, _ := d.DecodePath(m, valueField.Elem()); decoded == false {
+					decoded, _ = d.DecodePath(m, valueField.Elem())
+					if decoded == false {
 						// If nothing was decoded for this object return the pointer to nil
 						valueField.Set(reflect.NewAt(valueField.Type().Elem(), nil))
 					}

@@ -1015,23 +1015,53 @@ func TestDecodeWithEmbeddedSlice(t *testing.T) {
 func TestDecodeWithAbstractField(t *testing.T) {
 	var document = `{"Error":[{"errorDetail":"Invalid Cobrand Credentials"}]}`
 
-	type YodleeError struct {
+	type AnError struct {
 		Error []map[string]interface{} `jpath:"Error"`
 	}
 
-	type CobrandContext struct {
-		*YodleeError
+	type Context struct {
+		*AnError
 	}
 
 	docScript := []byte(document)
 	docMap := map[string]interface{}{}
 	json.Unmarshal(docScript, &docMap)
 
-	cobrandContext := CobrandContext{}
-	DecodePath(docMap, &cobrandContext)
+	context := Context{}
+	DecodePath(docMap, &context)
 
 	errorDetail := "Invalid Cobrand Credentials"
-	if cobrandContext.Error[0]["errorDetail"].(string) != errorDetail {
-		t.Errorf("cobrandContext.Error[0][\"errorDetail\"] should be '%s', we got '%s'", errorDetail, cobrandContext.Error[0]["errorDetail"].(string))
+	if context.Error[0]["errorDetail"].(string) != errorDetail {
+		t.Errorf("context.Error[0][\"errorDetail\"] should be '%s', we got '%s'", errorDetail, context.Error[0]["errorDetail"].(string))
+	}
+}
+
+func TestDecodePointerToPointer(t *testing.T) {
+	var document = `{"Error":[{"errorDetail":"Invalid Cobrand Credentials"}]}`
+
+	type AnError struct {
+		Error []map[string]interface{} `jpath:"Error"`
+	}
+
+	type APointerError struct {
+		*AnError
+	}
+
+	type Context struct {
+		*APointerError
+	}
+
+	docScript := []byte(document)
+	docMap := map[string]interface{}{}
+	json.Unmarshal(docScript, &docMap)
+
+	context := Context{}
+	DecodePath(docMap, &context)
+
+	errorDetail := "Invalid Cobrand Credentials"
+	if context.Error != nil {
+		if context.Error[0]["errorDetail"].(string) != errorDetail {
+			t.Errorf("context.Error[0][\"errorDetail\"] should be '%s', we got '%s'", errorDetail, context.Error[0]["errorDetail"].(string))
+		}
 	}
 }
