@@ -118,10 +118,10 @@ type User struct {
 }
 
 docScript := []byte(document)
-docMap := map[string]interface{}{}
+var docMap map[string]interface{}
 json.Unmarshal(docScript, &docMap)
 
-user := User{}
+var user User
 mapstructure.DecodePath(docMap, &user)
 ```
 
@@ -144,7 +144,7 @@ type NameDoc struct {
 }
 
 sliceScript := []byte(document)
-sliceMap := []map[string]interface{}{}
+var sliceMap []map[string]interface{}
 json.Unmarshal(sliceScript, &sliceMap)
 
 var myslice []NameDoc
@@ -211,9 +211,9 @@ type Items struct {
 }
 
 docScript := []byte(document)
-docMap := map[string]interface{}{}
+var docMap map[string]interface{}
 json.Unmarshal(docScript, &docMap)
 
-items := Items{}
+var items Items
 DecodePath(docMap, &items)
 ```

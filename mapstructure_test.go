@@ -835,13 +835,13 @@ func TestDecodePath(t *testing.T) {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	err := json.Unmarshal(docScript, &docMap)
 	if err != nil {
 		t.Fatalf("Unable To Unmarshal Test Document, %s", err)
 	}
 
-	user := User{}
+	var user User
 	DecodePath(docMap, &user)
 
 	session := "06142010_1:b8d011fefbab8bf1753391b074ffedf9578612d676ed2b7f073b5785b"
@@ -893,7 +893,7 @@ func TestDecodeSlicePath(t *testing.T) {
 	}
 
 	sliceScript := []byte(document)
-	sliceMap := []map[string]interface{}{}
+	var sliceMap []map[string]interface{}
 	json.Unmarshal(sliceScript, &sliceMap)
 
 	var myslice1 []NameDoc
@@ -980,7 +980,7 @@ func TestDecodeWithEmbeddedSlice(t *testing.T) {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
 	items := Items{}
@@ -1024,7 +1024,7 @@ func TestDecodeWithAbstractField(t *testing.T) {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
 	context := Context{}
@@ -1052,10 +1052,10 @@ func TestDecodePointerToPointer(t *testing.T) {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
-	context := Context{}
+	var context Context
 	DecodePath(docMap, &context)
 
 	errorDetail := "Invalid Cobrand Credentials"

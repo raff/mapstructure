@@ -208,10 +208,10 @@ func ExampleDecodePath() {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
-	user := User{}
+	var user User
 	DecodePath(docMap, &user)
 
 	fmt.Printf("%#v", user)
@@ -227,7 +227,7 @@ func ExampleDecodeSlicePath() {
 	}
 
 	sliceScript := []byte(document)
-	sliceMap := []map[string]interface{}{}
+	var sliceMap []map[string]interface{}
 	json.Unmarshal(sliceScript, &sliceMap)
 
 	var myslice []NameDoc
@@ -288,10 +288,10 @@ func ExampleDecodeWithEmbeddedSlice() {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
-	items := Items{}
+	var items Items
 	DecodePath(docMap, &items)
 
 	fmt.Printf("%#v", items)
@@ -311,10 +311,10 @@ func ExampleDecodeWithAbstractField() {
 	}
 
 	docScript := []byte(document)
-	docMap := map[string]interface{}{}
+	var docMap map[string]interface{}
 	json.Unmarshal(docScript, &docMap)
 
-	cobrandContext := CobrandContext{}
+	var cobrandContext CobrandContext
 	DecodePath(docMap, &cobrandContext)
 
 	fmt.Printf("%#v", cobrandContext)
