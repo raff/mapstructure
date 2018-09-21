@@ -59,6 +59,12 @@ type DecoderConfig struct {
 	// The tag name that mapstructure reads for field names. This
 	// defaults to "mapstructure"
 	TagName string
+
+	// The tag name used for DecodePath. This defaults to "jpath"
+	PathName string
+
+	// The path separator. This defaults to "."
+	PathSep string
 }
 
 // A Decoder takes a raw interface value and turns it into structured
@@ -192,6 +198,14 @@ func NewDecoder(config *DecoderConfig) (*Decoder, error) {
 		config.TagName = "mapstructure"
 	}
 
+	if config.PathName == "" {
+		config.PathName = "jpath"
+	}
+
+	if config.PathSep == "" {
+		config.PathSep = "."
+	}
+
 	result := &Decoder{
 		config: config,
 	}
@@ -214,6 +228,14 @@ func NewPathDecoder(config *DecoderConfig) (*Decoder, error) {
 
 	if config.TagName == "" {
 		config.TagName = "mapstructure"
+	}
+
+	if config.PathName == "" {
+		config.PathName = "jpath"
+	}
+
+	if config.PathSep == "" {
+		config.PathSep = "."
 	}
 
 	result := &Decoder{
@@ -260,7 +282,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		valueField := val.Field(i)
 		typeField := val.Type().Field(i)
 		tag := typeField.Tag
-		tagValue := tag.Get("jpath")
+		tagValue := tag.Get(d.config.PathName)
 
 		// Is this a field without a tag
 		if tagValue == "" {
@@ -287,7 +309,7 @@ func (d *Decoder) DecodePath(m map[string]interface{}, rawVal interface{}) (bool
 		}
 
 		// Use mapstructure to populate the fields
-		keys := strings.Split(tagValue, ".")
+		keys := strings.Split(tagValue, d.config.PathSep)
 		data := d.findData(m, keys)
 		if data != nil {
 			if valueField.Kind() == reflect.Slice {
